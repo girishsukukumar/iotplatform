@@ -1,0 +1,87 @@
+#! /usr/bin/python3
+
+#from flask import Flask
+#@app.route("/")
+#def hello():
+#    return "Hello world!"
+
+
+from flask import Flask, request, render_template
+from influxdb import InfluxDBClient
+import time
+import json
+INFLUX_PORT = 8086
+INFLUX_HOSTNAME =  'localhost'
+INFLUX_USERNAME = 'girish'
+INFLUX_PASSWORD = 'gks3050'
+INFLUX_DATABASE = 'defaultdb'
+
+
+app = Flask(__name__)
+import random
+import logging
+import os 
+
+@app.route('/')
+def home():
+  return render_template("sensor.html")
+
+
+
+@app.route('/settime', methods=["GET"])
+def settime():
+   return "<HTML> <H1> SetTime  </H1> </HTML" 
+
+ 
+
+@app.route('/event', methods=["POST"])
+def HandlePost():
+   msg  = "No data"
+   action = request.form['Action']
+   data = request.form['data']
+ 
+   INFLUX_HANDLE =  InfluxDBClient(host= INFLUX_HOSTNAME,
+                        port=INFLUX_PORT,
+                        username=INFLUX_USERNAME,
+                        password=INFLUX_PASSWORD,
+                        ssl=False,
+                        verify_ssl=False)
+
+   INFLUX_HANDLE.switch_database('defaultdb')
+ 
+   if action == 'Event':
+     writeData = [] 
+     jsonStr = data 
+     jsonStr  = jsonStr.replace("\'", "\"")
+     jsonDict= json.loads(jsonStr)
+     #print(jsonStr)
+     #x = jsonDict.get('measurement')
+     #print(x) 
+     #x = jsonDict.get('fields')
+     #print(x) 
+     #print(x.get('Temperature')) 
+     #print(x.get('Humidity')) 
+     #x = jsonDict.get('tags')
+     #print(x) 
+     #print(x.get('event'))
+     #print(x.get('SesnorId'))
+
+     writeData.append( jsonDict)
+     #print(writeData)
+
+     milli_sec1 = int(round(time.time() * 1000))
+     INFLUX_HANDLE.write_points(writeData)
+   else:
+     return " I Not Implemented" + action 
+   milli_sec2 = int(round(time.time() * 1000))
+   diff = milli_sec2 - milli_sec1 
+   msg  = str(diff) 
+   return msg
+
+
+@app.route('/speed', methods=["POST"])
+def sendspeed():
+   return "<HTML> <H1> Speed  </H1> </HTML" 
+
+if __name__ == "__main__":
+    app.run()
