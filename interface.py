@@ -1,9 +1,6 @@
 #! /usr/bin/python3
 
 #from flask import Flask
-#@app.route("/")
-#def hello():
-#    return "Hello world!"
 
 from users import userlist
 from flask import Flask, request, render_template , session
@@ -13,6 +10,8 @@ import json
 import random
 import logging
 import os 
+
+import template as appHtml
 INFLUX_PORT = 8086
 INFLUX_HOSTNAME =  'localhost'
 INFLUX_USERNAME = 'girish'
@@ -41,6 +40,27 @@ def home():
   return render_template("sensor.html")
 
 
+@app.route('/ListUsers', methods=["GET"])
+def ListUsers():
+    htmlBuffer = "<!DOCTYPE html> <html> <head> <style> " 
+    htmlBuffer = htmlBuffer + "table { width:30%; }"
+    htmlBuffer = htmlBuffer + "table, th, td {"
+    htmlBuffer = htmlBuffer + "border: 1px solid black;"
+    htmlBuffer = htmlBuffer + "border-collapse: collapse; } th, td { padding: 15px; text-align: left; }"
+    htmlBuffer = htmlBuffer + "table#t01 tr:nth-child(even) { background-color: #eee; } "
+    htmlBuffer = htmlBuffer + "table#t01 tr:nth-child(odd) { background-color: #fff; }"
+    htmlBuffer = htmlBuffer + "table#t01 th { background-color: black; color: white; }" 
+    htmlBuffer = htmlBuffer + "</style> </head>"
+    htmlBuffer = htmlBuffer + "<CENTER>"
+    htmlBuffer = htmlBuffer + "<H1> User List </H1>"
+    htmlBuffer = htmlBuffer +  "<TABLE id=\"t01\">"
+    htmlBuffer = htmlBuffer +  "<tr> <th>No </th> <th>User ID </th> <th>Name</th> </tr>"
+    buffer = "" 
+    count = 1
+    for row in userlist:
+       count = count+1
+    htmlBuffer = htmlBuffer + "</TABLE> </CENTER></HTML>"
+    return  htmlBuffer
 
 @app.route('/devices', methods=["GET"])
 def DeviceManagement():
@@ -55,20 +75,26 @@ def Analytics():
 @app.route('/dashboards', methods=["GET"])
 def Dashboard():
    return render_template("dashboard.html")  
-
+def GenerateFrontPage():
+    page = appHtml.partOne + appHtml.partTwo
+    # This is where we need to fill in the main part
+    page = page + appHtml.partThree
+    return page
 @app.route('/login', methods=["POST"])
 def HandleLogin():
+  retHtml = "" 
   loginname = request.form['fname']
   password = request.form['lname']
   success, role = ValidateUser(loginname,password)
   if success:
      session['login'] = loginname 
      session['role'] =  role
-     retHtml   = "frontpage.html"
+     retHtml   = GenerateFrontPage()
+     #retHtml   = "frontpage.html"
   else:
-     retHtml = "autherror.html"
+     retHtml = "<HTML> autherror.html </HTML>"
   
-  return render_template(retHtml)
+  return retHtml
      
 @app.route('/logout', methods=["GET"])
 def HandleLogout():
