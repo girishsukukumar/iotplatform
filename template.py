@@ -9,15 +9,16 @@ body { \
 } \
 .topnav { \
   overflow: hidden; \
-  background-color: #000000; \
+  background-color: #097ef2; \
 } \
 .topnav { \
   overflow: hidden; \
-  background-color: #000000; \
+  background-color: #097ef2; \
 } \
 .topnav a { \
   float: right; \
-  color: #ff3300; \
+/*  color: #ff3300; */ \
+    color: #eaf2fa; \
   text-align: center; \
   padding: 14px 16px; \
   text-decoration: none; \
@@ -42,7 +43,7 @@ body { \
   z-index: 1; \
   top: 0; \
   left: 0; \
-  background-color: #111; \
+  background-color: #097ef2; \
   overflow-x: hidden; \
   padding-top: 20px; \
 } \
@@ -51,7 +52,7 @@ body { \
   padding: 6px 8px 6px 16px; \
   text-decoration: none; \
   font-size: 20px; \
-  color: #ff3300; \
+  color: #eaf2fa; \
   display: block; \
   border: none; \
   background: none; \
@@ -91,6 +92,17 @@ body { \
   .sidenav {padding-top: 15px;} \
   .sidenav a {font-size: 18px;} \
 } \
+table, th, td { \
+  border: 1px solid black; \
+  border-collapse: collapse; \
+} \
+th, td { \
+  padding: 15px; \
+  text-align: left; \
+} \
+table#t01 { \
+  background-color: #c3ddf7; \
+}\
 </style> \
 </head>'
 
@@ -98,12 +110,12 @@ partTwo= '<body> \
 <div class="topnav"> \
   <div class="topnav-right"> \
     <a  href="/iot/logout">  Logout</a> \
-    <a> <B>Logged in: {{session.role}}</B> </a>   \
+    <a> Logged in: <B> uSeRnAmE </B> </a>   \
     <a  href="#search">Search</a> \
   </div> \
 </div> \
 <div class="sidenav"> \
-  <button> Devices </button> \
+  <a href="#about"><B><U>Main Menu</U></B></a> \
   <button class="dropdown-btn">Devices  \
     <i class="fa fa-caret-down"></i> \
   </button> \

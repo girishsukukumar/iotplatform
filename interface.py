@@ -10,8 +10,9 @@ import json
 import random
 import logging
 import os 
-
+import string
 import template as appHtml
+import devices as  registeredDevices
 INFLUX_PORT = 8086
 INFLUX_HOSTNAME =  'localhost'
 INFLUX_USERNAME = 'girish'
@@ -62,10 +63,54 @@ def ListUsers():
     htmlBuffer = htmlBuffer + "</TABLE> </CENTER></HTML>"
     return  htmlBuffer
 
+#-----
+def GenerateDeviceListPage():
+    page = appHtml.partOne
+    # replace uSerNaMe with role
+    role = session['role']
+    editablePartTwo = appHtml.partTwo
+
+    editablePartTwo = editablePartTwo.replace('uSeRnAmE' ,role)
+    page = page + editablePartTwo
+
+    # This is where we need to fill in the main part
+    mainPart = "" 
+    mainPart =  '<div class=\"main\"> \
+                   <h2>Device Management </h2> \
+                        <body> \
+                            <table id=\"t01\">\
+                               <tr> \
+                               <th>No</th>\
+                               <th>Name</th>\
+                               <th>Device ID</th> \
+                               <th>Description</th> \
+                             </tr>'
+    count = 1
+    row = ""
+    for device in registeredDevices.devicelist:
+        row =        "<TR> <TD>" +str(count) + "</TD>"
+        row = row +  "<TD>" + device[0] + "</TD>" 
+        row = row +  "<TD>" + device[1] + "</TD>"
+        row = row +  "<TD>" + device[2] + "</TD> <TR>"
+        mainPart = mainPart + row 
+        row = ""
+        count = count + 1
+    mainPart = mainPart + "</TABLE> </BODY> </DIV>" 
+
+    page = page + mainPart
+    # End of generating main content
+
+    page = page + appHtml.partThree
+    return page
+
+#------
+
 @app.route('/devices', methods=["GET"])
 def DeviceManagement():
-#   return "<HTML> <H1> device Homepage  </H1> </HTML" 
-   return render_template("devices.html")  
+   html  = GenerateDeviceListPage()
+   return html
+   #return "<HTML> <H1> device Homepage  </H1> </HTML" 
+   #return render_template("devices.html")  
 
 @app.route('/analytics', methods=["GET"])
 def Analytics():
@@ -76,8 +121,24 @@ def Analytics():
 def Dashboard():
    return render_template("dashboard.html")  
 def GenerateFrontPage():
-    page = appHtml.partOne + appHtml.partTwo
+    page = appHtml.partOne 
+    # replace uSerNaMe with role
+    role = session['role']
+    editablePartTwo = appHtml.partTwo
+
+    editablePartTwo = editablePartTwo.replace('uSeRnAmE' ,role)
+    page = page + editablePartTwo 
+    
     # This is where we need to fill in the main part
+    mainPart = '<div class="main">\
+                    <h2>Open View  IoT </h2>\
+                    <body>\
+                          <img src="http://platform.i2otlabs.com/Front_page.jpg">\
+                    </body>\
+               </div>'
+    page = page + mainPart
+    # End of generating main content 
+
     page = page + appHtml.partThree
     return page
 @app.route('/login', methods=["POST"])
@@ -89,6 +150,7 @@ def HandleLogin():
   if success:
      session['login'] = loginname 
      session['role'] =  role
+     session['status'] = "1" 
      retHtml   = GenerateFrontPage()
      #retHtml   = "frontpage.html"
   else:
@@ -98,7 +160,8 @@ def HandleLogin():
      
 @app.route('/logout', methods=["GET"])
 def HandleLogout():
-    session.pop('login', None)
+    if  'login' in session:
+        session.pop('login', None)
     return render_template("logout.html")
    
 @app.route('/event', methods=["POST"])
